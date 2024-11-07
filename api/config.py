@@ -3,20 +3,19 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """
-    Class that extends Pydantics base settings to read in
-    environment variables from a file.
+    Class that extends Pydantics base settings to read environment variables.
+    These values are fall back values. If no environment variables are set, it will use these
     """
 
-    # used to connect to icat
-    version: str
+    version: str = "1.0"
 
-    opensearch_host: str
-    opensearch_port: int
+    opensearch_host: str = "1.0"
+    opensearch_port: int = 9200
 
-    jwt_secret_key: str
-    jwt_algo: str
+    jwt_secret_key: str = "your-secret-key"
+    jwt_algo: str = "HS256"
 
-    scigateway_auth: str
+    scigateway_auth: str = "https://scigateway_auth/validate"
 
     class Config:
         env_file = "./config.env"

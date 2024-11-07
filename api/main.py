@@ -6,14 +6,14 @@ from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 
 from api.config import settings
 from api.investigations import extract_investigations
-from api.check_jwt import check_jwt_exists, validate_jwt_with_third_party
+from api.check_jwt import check_jwt_exists, validate_jwt_with_scigateway_auth
 from api.logger import app_logger
 
 app = FastAPI(
     title="Search API",
-    description=" This API receives a JWT and a search term in the url, validates and decodes"
-                " the JWT to get the list of investigations the user can see, then sdd this to the filter"
-                " in the opensearch query so we're only showing the user what they have access to see",
+    description=" Middleware that verifies a JWT, validates it against Scigateway auth, "
+                "and filters search results from OpenSearch based on user permissions "
+                "before returning authorised data to the client",
     version=settings.version,
     contact={
         "name": "Alexander Kemp",
@@ -38,12 +38,16 @@ class SearchRequest(BaseModel):
 
 
 # Search in OpenSearch with JWT-based filtering
-@app.post("/api/search")
+@app.post("/api/search",
+          summary="Returns results the user has access to",
+          description="Receives a JWT and a search term in the url, validates and decodes"
+                      " the JWT to get the list of investigations the user can see, then add to a filter"
+                      " in the opensearch query so we're only showing the user what they have access to see")
 async def search_opensearch(request: SearchRequest, token: str = Depends(check_jwt_exists)):
     endpoint_hits_counter.inc()
 
     # Validate the token with the third-party API
-    payload = validate_jwt_with_third_party(token)
+    payload = validate_jwt_with_scigateway_auth(token)
 
     # Extract investigations from the validated payload
     investigations = extract_investigations(payload)

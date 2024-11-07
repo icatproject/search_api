@@ -20,7 +20,7 @@ def check_jwt_exists(request: Request):
 
 
 # Validate JWT with third-party API
-def validate_jwt_with_third_party(token: str):
+def validate_jwt_with_scigateway_auth(token: str):
     # Validate the token with the third-party API
     response = requests.get(settings.scigateway_auth, headers={"Authorization": f"Bearer {token}"})
 

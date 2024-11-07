@@ -3,7 +3,6 @@ pydantic
 pydantic-settings
 fastapi
 uvicorn
-python-dotenv
 prometheus_client
 requests
 PyJWT

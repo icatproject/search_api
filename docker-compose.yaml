@@ -1,0 +1,44 @@
+version: '3'
+# Once this has been run. it can be tested with:
+# curl -X GET 'http://localhost:9200/my-index/_search' -H 'Content-Type: application/json' -d' { "query": {"match_all": { }}}'
+
+services:
+  # create a basic opensearch cluster
+  opensearch:
+    image: opensearchproject/opensearch:2.5.0
+    container_name: opensearch
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 3s
+      retries: 30
+
+# Once the opensearch instance is healthy, add some test data
+  seed_opensearch:
+    image: curlimages/curl:7.85.0
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    command: >
+      sh -c "
+        sleep 10;
+        curl -X POST 'http://opensearch:9200/my-index/_doc/1' -H 'Content-Type: application/json' -d '{\"title\": \"Sample Investigation 1\", \"id\": \"101\", \"description\": \"Details about investigation 1\", \"user\": \"user1\"}' &&
+        curl -X POST 'http://opensearch:9200/my-index/_doc/2' -H 'Content-Type: application/json' -d '{\"title\": \"Sample Investigation 2\", \"id\": \"102\", \"description\": \"Details about investigation 2\", \"user\": \"user2\"}' &&
+        curl -X POST 'http://opensearch:9200/my-index/_doc/2' -H 'Content-Type: application/json' -d '{\"title\": \"Sample Investigation 3\", \"id\": \"103\", \"description\": \"Details about investigation 3\", \"user\": [\"user3\", \"user4\"]}' ;
+      "
+
+volumes:
+  opensearch-data:

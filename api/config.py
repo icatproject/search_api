@@ -9,16 +9,13 @@ class Settings(BaseSettings):
 
     version: str = "1.0"
 
-    opensearch_host: str = "1.0"
+    opensearch_host: str = "127.0.0.1"
     opensearch_port: int = 9200
 
     jwt_secret_key: str = "your-secret-key"
     jwt_algo: str = "HS256"
 
     scigateway_auth: str = "https://scigateway_auth/validate"
-
-    class Config:
-        env_file = "./config.env"
 
 
 # create a single instance on the class to import

@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Response
+from typing import Dict, Any
+
+from fastapi import FastAPI, Response, HTTPException
 from fastapi.params import Depends
 from opensearchpy import OpenSearch
 from pydantic import BaseModel
@@ -34,53 +36,56 @@ opensearch_client = OpenSearch(
 
 # Model for search request
 class SearchRequest(BaseModel):
-    query: str
+    query: Dict[str, Any]
 
 
-# Search in OpenSearch with JWT-based filtering
-@app.post("/api/search",
-          summary="Returns results the user has access to",
+@app.get("/search",
+          summary="Returns search results the user has access to see",
           description="Receives a JWT and a search term in the url, validates and decodes"
                       " the JWT to get the list of investigations the user can see, then add to a filter"
                       " in the opensearch query so we're only showing the user what they have access to see")
 async def search_opensearch(request: SearchRequest, token: str = Depends(check_jwt_exists)):
     endpoint_hits_counter.inc()
 
-    # Validate the token with the third-party API
-    payload = validate_jwt_with_scigateway_auth(token)
+    # Validate the token with the third-party API (uncomment when implemented)
+    # payload = validate_jwt_with_scigateway_auth(token)
 
     # Extract investigations from the validated payload
-    investigations = extract_investigations(payload)
+    # investigations = extract_investigations(payload)
 
-    # OpenSearch query
-    search_query = {
-        "query": {
+    # TESTING: Hard-coded filter to apply to every request
+    hard_coded_filter = {"terms": {"id": ["101", "103"]}}
+
+    # Override any client-provided filters by setting the hard-coded filter
+    if "bool" in request.query:
+        # Replace the `filter` section with the hard-coded filter
+        request.query["bool"]["filter"] = [hard_coded_filter]
+    else:
+        # If there's no `bool` clause, create it with the filter and wrap the existing query in `must`
+        request.query = {
             "bool": {
-                "must": [
-                    {"match": {"description": request.query}}
-                ],
-                "filter": [
-                    {"terms": {"user": investigations}}
-                ]
+                "must": [request.query],
+                "filter": [hard_coded_filter]
             }
         }
-    }
 
-    # Execute search in OpenSearch
-    response = opensearch_client.search(
-        body=search_query,
-        index="my-index"
-    )
+    # Execute the modified query in OpenSearch
+    try:
+        response = opensearch_client.search(
+            body={"query": request.query},
+            index="my-index"
+        )
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    return response
 
-
-@app.get("/version", summary="Get API version", description="Returns the current version of the API")
+@app.get("/version", summary="Returns the current version of the API")
 async def version():
     return {"version": settings.version}
 
 
-@app.get("/metrics", summary="Get metrics", description="Returns Prometheus metrics for the application")
+@app.get("/metrics", summary="Returns Prometheus metrics for the application")
 async def metrics():
     data = generate_latest()
     return Response(content=data, media_type=CONTENT_TYPE_LATEST)

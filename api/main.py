@@ -40,15 +40,16 @@ class SearchRequest(BaseModel):
 
 
 @app.get("/search",
-          summary="Returns search results the user has access to see",
-          description="Receives a JWT and a search term in the url, validates and decodes"
-                      " the JWT to get the list of investigations the user can see, then add to a filter"
-                      " in the opensearch query so we're only showing the user what they have access to see")
-async def search_opensearch(request: SearchRequest, token: str = Depends(check_jwt_exists)):
+         summary="Returns search results the user has access to see",
+         tags=["Endpoints"],
+         description="Receives a JWT and a search term in the body, validates and decodes"
+                     " the JWT to get the list of investigations the user can see, then adds them to a filter"
+                     " in the opensearch query so we're only showing the user what they have access to see")
+async def search_opensearch(request: SearchRequest, jwt: str = Depends(check_jwt_exists)):
     endpoint_hits_counter.inc()
 
     # Validate the token with the third-party API (uncomment when implemented)
-    # payload = validate_jwt_with_scigateway_auth(token)
+    # payload = validate_jwt_with_scigateway_auth(jwt)
 
     # Extract investigations from the validated payload
     # investigations = extract_investigations(payload)
@@ -80,12 +81,12 @@ async def search_opensearch(request: SearchRequest, token: str = Depends(check_j
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/version", summary="Returns the current version of the API")
+@app.get("/version", summary="Returns the current version of the API", tags=["Endpoints"])
 async def version():
     return {"version": settings.version}
 
 
-@app.get("/metrics", summary="Returns Prometheus metrics for the application")
+@app.get("/metrics", summary="Returns Prometheus metrics for the application", tags=["Endpoints"])
 async def metrics():
     data = generate_latest()
     return Response(content=data, media_type=CONTENT_TYPE_LATEST)

@@ -1,0 +1,50 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # or specify your deployment branch
+
+jobs:
+
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build and run ICAT Docker Compose stack
+        run: docker compose up -d opensearch seed_opensearch scigateway-auth
+
+      # Output Docker networks
+      - name: List Docker Networks
+        run: docker network ls
+
+      # Build and run tests
+      - name: Build and Test
+        run: |
+          docker build --target test -t my-app:test .
+          docker run --network search_api_default my-app:test
+
+  Push-to-Harbor:
+    needs: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.HARBOR_URL }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Build and push the Upload API Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          target: production
+          # Push to harbor using the branch name as tag.
+          tags: ${{ secrets.HARBOR_URL }}/api:${{ github.ref_name }}

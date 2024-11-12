@@ -5,7 +5,10 @@
 The Search API is middleware that verifies a JWT, validates it against Scigateway auth, and filters search results 
 from OpenSearch based on user permissions before returning authorised data to the client.
 
-The OpenAPI spec can be found at `/docs`
+The OpenAPI spec can be found at `/docs`.
+
+## JWT metadata
+The API looks for the `investigations` tag in the decoded jwt metadata, it then uses this to apply a filter to the search results.
 
 ## Example Request
 ```commandline
@@ -16,7 +19,8 @@ curl --request GET \
   --header 'User-Agent: insomnia/9.3.3' \
   --data '{"query": {"bool": {"must": [{"match": {"title": "Investigation"}}]}}}'
 ```
-The JSON `query` contains the OpenSearch query. The API acts as a pass-through, so it must match the OpenSearch specification here
+The JSON `query` contains the OpenSearch query. 
+The API acts as a pass-through, so it must match the OpenSearch specification [here](https://opensearch.org/docs/latest/query-dsl/).
 
 
 ## Example Response
@@ -59,5 +63,3 @@ The response is a standard Opensearch response:
 }
 
 ```
-## JWT metadata
-The API looks for the `investigations` tag in the decoded jwt metadata, it then uses this to apply a filter to the search results.

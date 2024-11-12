@@ -28,9 +28,13 @@ async def authenticate_and_decode(credentials: HTTPAuthorizationCredentials = Se
 
         return investigations  # Return the payload if the token is valid
 
+    except HTTPException as e:
+        # Re-raise HTTPException directly without modification
+        raise e
+
     except Exception as e:
+        # Raise all other exceptions as 500 Internal Server Error
         raise HTTPException(
-            status_code=e.status_code,
-            detail=f"Authentication error: {str(e)}"
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
         )
-    

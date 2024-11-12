@@ -26,7 +26,7 @@ services:
       interval: 3s
       retries: 30
 
-# Once the opensearch instance is healthy, add some test data
+  # Once the opensearch instance is healthy, add some test data
   seed_opensearch:
     image: curlimages/curl:7.85.0
     depends_on:
@@ -39,6 +39,26 @@ services:
         curl -X POST 'http://opensearch:9200/my-index/_doc/2' -H 'Content-Type: application/json' -d '{\"title\": \"Sample Investigation 2\", \"id\": \"102\", \"description\": \"Details about investigation 2\", \"user\": \"user2\"}' &&
         curl -X POST 'http://opensearch:9200/my-index/_doc/2' -H 'Content-Type: application/json' -d '{\"title\": \"Sample Investigation 3\", \"id\": \"103\", \"description\": \"Details about investigation 3\", \"user\": [\"user3\", \"user4\"]}' ;
       "
+
+ # Available at localhost:8008/verify
+ # For JWT testing, copy private key from within container and use jwt.io to create a rs256 based jwt with custom payload:
+  #  {
+  #    "sub": "1234567890",
+  #    "user": "user1",
+  #    "iat": 1516239022,
+  #    "investigations": [
+  #      { "id": "101" }
+  #    ]
+  #  }
+ # For decode, copy the public key and update config.py
+  scigateway-auth:
+    image: harbor.stfc.ac.uk/datagateway/scigateway-auth:main
+    container_name: scigateway_auth_container
+    environment:
+      - ICAT_URL=https://scigateway-preprod.esc.rl.ac.uk:8181/icat
+    ports:
+      - "8008:8000"
+
 
 volumes:
   opensearch-data:

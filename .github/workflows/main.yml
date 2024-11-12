@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # or specify your deployment branch
+      - main
 
 jobs:
 
@@ -17,15 +17,11 @@ jobs:
       - name: Build and run ICAT Docker Compose stack
         run: docker compose up -d opensearch seed_opensearch scigateway-auth
 
-      # Output Docker networks
-      - name: List Docker Networks
-        run: docker network ls
-
       # Build and run tests
       - name: Build and Test
         run: |
-          docker build --target test -t my-app:test .
-          docker run --network search_api_default my-app:test
+          docker build --target test -t search-api:test .
+          docker run --network search_api_default search-api:test
 
   Push-to-Harbor:
     needs: Test

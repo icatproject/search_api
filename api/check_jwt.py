@@ -6,7 +6,7 @@ from fastapi import HTTPException, Request
 from api.config import settings
 
 
-# Check if JWT exists in Authorization header
+# Check if JWT exists in Authorisation header
 def check_jwt_exists(request: Request):
     authorization: str = request.headers.get("Authorization")
 
@@ -19,18 +19,27 @@ def check_jwt_exists(request: Request):
     return token
 
 
-# Validate JWT with third-party API
 def validate_jwt_with_scigateway_auth(token: str):
-    # Validate the token with the third-party API
-    response = requests.get(settings.scigateway_auth, headers={"Authorization": f"Bearer {token}"})
-
-    # Check if validation failed
-    if response.status_code != 200:
-        raise HTTPException(status_code=401, detail="JWT validation failed with third-party API")
-
-    # If the token is valid, decode it locally using the SECRET_KEY and ALGORITHM
     try:
-        payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algo])
+        response = requests.post(
+            settings.scigateway_auth,
+            json={"token": token}
+        )
+        # Check if validation failed
+        if response.status_code != 200:
+            raise HTTPException(status_code=401, detail="JWT validation failed with Scigateway-auth")
+
+        return response  # Or return relevant data from response if needed
+
+    except requests.exceptions.RequestException as e:
+        # Handle network-related errors
+        raise HTTPException(status_code=500, detail=f"Error communicating with Scigateway-auth: {str(e)}")
+
+
+def decode_jwt(token: str):
+    try:
+        payload = jwt.decode(token, settings.jwt_public_key, algorithms=[settings.jwt_algo])
         return payload  # Return the decoded payload
+
     except PyJWTError as e:
-        raise HTTPException(status_code=401, detail=f"Invalid JWT token: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Could not decode JWT token: {str(e)}")

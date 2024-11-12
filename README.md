@@ -16,7 +16,6 @@ curl --request GET \
   --url http://127.0.0.1:8000/search \
   --header 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNlciI6InVzZXIxIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiaW52ZXN0aWdhdGlvbnMiOlt7ImlkIjoiMTAxIn1dfQ.bHJcGR9CEzxnahv3PaSyNw9m2gScHg1NAnVXTZlTlBpnYMAdPpkeWEoOr2R55Sp3bA_t9tVYIM0ROgz3rmteyCbVhKCKG9vLbdFGvVtaGqPvEwLGM4ADw-cEZZU1WDLYGJwEW84tzvufMvlf9mLxNy3jrlfBA_bWFjZiDZz16Wb80v2kTlPZagoqJZvw4GUv4dxXlFFxp04ZqUQIxchpWUlvnNeGnsaUfoMmwbAqxOuyGSAAcYNRNhz_RNFWYybAR-pZp_lGYAiox1xUGG_7X2cJBe71JDsDvTXKTLx5xuFJd6-5Eb15JbbB1k3AV8UQOiozBd-AMBNI4LEJvtPIeRtruyp1PEwTE0nnmhQtZ6vl32zpkwYS5vLlx5WvPCQF0C8EizhAcLs224RM958EV0MKuOHKz-Jcx9oLeIzmhIDpr-B-Aox_qil-bKenJnQh6BStuZhFY7N13KxRr99dVrtQQ0LQpP6boavjywrHkDw62Mfbwl3UngzABpQC4MSj' \
   --header 'Content-Type: application/json' \
-  --header 'User-Agent: insomnia/9.3.3' \
   --data '{"query": {"bool": {"must": [{"match": {"title": "Investigation"}}]}}}'
 ```
 The JSON `query` contains the OpenSearch query. 

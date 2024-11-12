@@ -1,16 +1,18 @@
 from typing import Dict, Any
 
-from fastapi import FastAPI, Response, HTTPException
-from fastapi.params import Depends
+from fastapi import Depends, HTTPException
+from fastapi import FastAPI, Response
+from fastapi.security import HTTPBearer
 from opensearchpy import OpenSearch
-from pydantic import BaseModel
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
+from pydantic import BaseModel
 
+from api.auth import authenticate_and_decode
 from api.config import settings
-from api.investigations import extract_investigations
-from api.check_jwt import check_jwt_exists, validate_jwt_with_scigateway_auth, decode_jwt
 from api.logger import app_logger
 
+# Define the security scheme to expect an Authorization header
+security = HTTPBearer()
 app = FastAPI(
     title="Search API",
     description=" Middleware that verifies a JWT, validates it against Scigateway auth, "
@@ -45,16 +47,11 @@ class SearchRequest(BaseModel):
          description="Receives a JWT and a search term in the body, validates and decodes"
                      " the JWT to get the list of investigations the user can see, then adds them to a filter"
                      " in the opensearch query so we're only showing the user what they have access to see")
-async def search_opensearch(request: SearchRequest, jwt: str = Depends(check_jwt_exists)):
+async def search_opensearch(
+    request: SearchRequest,
+    investigations: dict = Depends(authenticate_and_decode)
+):
     endpoint_hits_counter.inc()
-
-    # Validate the token with scigateway
-    validate_jwt_with_scigateway_auth(jwt)
-
-    payload = decode_jwt(jwt)
-
-    # Extract investigations from the validated payload
-    investigations = extract_investigations(payload)
 
     # Extract all `id` values from the investigations list
     id_list = [inv['id'] for inv in investigations]

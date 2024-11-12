@@ -1,8 +1,20 @@
-version: '3'
 # Once this has been run. it can be tested with:
 # curl -X GET 'http://localhost:9200/my-index/_search' -H 'Content-Type: application/json' -d' { "query": {"match_all": { }}}'
 
 services:
+
+  # targets: test or production
+  search-api:
+    container_name: search-api
+    build:
+      target: test
+    depends_on:
+      seed_opensearch:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+
+
   # create a basic opensearch cluster
   opensearch:
     image: opensearchproject/opensearch:2.5.0
@@ -58,6 +70,9 @@ services:
       - ICAT_URL=https://scigateway-preprod.esc.rl.ac.uk:8181/icat
     ports:
       - "8008:8000"
+    volumes:
+      - ./test/jwt-key:/scigateway-auth-run/keys/jwt-key
+      - ./test/jwt-key.pub:/scigateway-auth-run/keys/jwt-key.pub
 
 
 volumes:

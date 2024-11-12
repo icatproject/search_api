@@ -8,7 +8,7 @@ from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 
 from api.config import settings
 from api.investigations import extract_investigations
-from api.check_jwt import check_jwt_exists, validate_jwt_with_scigateway_auth
+from api.check_jwt import check_jwt_exists, validate_jwt_with_scigateway_auth, decode_jwt
 from api.logger import app_logger
 
 app = FastAPI(
@@ -48,33 +48,37 @@ class SearchRequest(BaseModel):
 async def search_opensearch(request: SearchRequest, jwt: str = Depends(check_jwt_exists)):
     endpoint_hits_counter.inc()
 
-    # Validate the token with the third-party API (uncomment when implemented)
-    # payload = validate_jwt_with_scigateway_auth(jwt)
+    # Validate the token with scigateway
+    validate_jwt_with_scigateway_auth(jwt)
+
+    payload = decode_jwt(jwt)
 
     # Extract investigations from the validated payload
-    # investigations = extract_investigations(payload)
+    investigations = extract_investigations(payload)
 
-    # TESTING: Hard-coded filter to apply to every request
-    hard_coded_filter = {"terms": {"id": ["101", "103"]}}
+    # Extract all `id` values from the investigations list
+    id_list = [inv['id'] for inv in investigations]
+
+    # Create the custom filter using the list of IDs, i.e: custom_filter = {"terms": {"id": ["101", "103"]}}
+    custom_filter = {"terms": {"id": id_list}}
 
     # Override any client-provided filters by setting the hard-coded filter
     if "bool" in request.query:
         # Replace the `filter` section with the hard-coded filter
-        request.query["bool"]["filter"] = [hard_coded_filter]
+        request.query["bool"]["filter"] = [custom_filter]
     else:
         # If there's no `bool` clause, create it with the filter and wrap the existing query in `must`
         request.query = {
             "bool": {
                 "must": [request.query],
-                "filter": [hard_coded_filter]
+                "filter": [custom_filter]
             }
         }
-
     # Execute the modified query in OpenSearch
     try:
         response = opensearch_client.search(
             body={"query": request.query},
-            index="my-index"
+            index=settings.opensearch_index
         )
         return response
     except Exception as e:

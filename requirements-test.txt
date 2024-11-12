@@ -1,0 +1,14 @@
+# Production dependencies
+pydantic
+pydantic-settings
+fastapi
+uvicorn
+prometheus_client
+requests
+PyJWT
+cryptography
+opensearch-py
+
+pytest
+pytest-env
+httpx

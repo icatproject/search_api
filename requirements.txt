@@ -6,4 +6,5 @@ uvicorn
 prometheus_client
 requests
 PyJWT
+cryptography
 opensearch-py

@@ -5,7 +5,7 @@
 The Search API is middleware that verifies a JWT, validates it against Scigateway auth, and filters search results 
 from OpenSearch based on user permissions before returning authorised data to the client.
 
-The OpenAPI spec can be found at `/docs`.
+A list of endpoints can be found in the OpenAPI spec at `/docs`.
 
 ## JWT metadata
 The API looks for the `investigations` tag in the decoded jwt metadata, it then uses this to apply a filter to the search results.

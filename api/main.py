@@ -41,15 +41,15 @@ class SearchRequest(BaseModel):
     query: Dict[str, Any]
 
 
-@app.get("/search",
-         summary="Returns search results the user has access to see",
-         tags=["Endpoints"],
-         description="Receives a JWT and a search term in the body, validates and decodes"
-                     " the JWT to get the list of investigations the user can see, then adds them to a filter"
-                     " in the opensearch query so we're only showing the user what they have access to see")
+@app.post("/search",
+          summary="Returns search results the user has access to see",
+          tags=["Endpoints"],
+          description="Receives a JWT and a search term in the body, validates and decodes"
+                      " the JWT to get the list of investigations the user can see, then adds them to a filter"
+                      " in the opensearch query so we're only showing the user what they have access to see")
 async def search_opensearch(
-    request: SearchRequest,
-    investigations: dict = Depends(authenticate_and_decode)
+        request: SearchRequest,
+        investigations: dict = Depends(authenticate_and_decode)
 ):
     endpoint_hits_counter.inc()
 

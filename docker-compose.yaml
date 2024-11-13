@@ -53,7 +53,7 @@ services:
       "
 
  # Available at localhost:8008/verify
- # For JWT testing, copy private key from within container and use jwt.io to create a rs256 based jwt with custom payload:
+ # For JWT testing, copy private key from the test folder and use jwt.io to create a rs256 based jwt with custom payload:
   #  {
   #    "sub": "1234567890",
   #    "user": "user1",

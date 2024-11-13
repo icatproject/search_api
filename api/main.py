@@ -2,7 +2,6 @@ from typing import Dict, Any
 
 from fastapi import Depends, HTTPException
 from fastapi import FastAPI, Response
-from fastapi.security import HTTPBearer
 from opensearchpy import OpenSearch
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from pydantic import BaseModel
@@ -11,8 +10,6 @@ from api.auth import authenticate_and_decode
 from api.config import settings
 from api.logger import app_logger
 
-# Define the security scheme to expect an Authorization header
-security = HTTPBearer()
 app = FastAPI(
     title="Search API",
     description=" Middleware that verifies a JWT, validates it against Scigateway auth, "

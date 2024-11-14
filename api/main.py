@@ -76,6 +76,7 @@ async def search_opensearch(
         )
         return response
     except Exception as e:
+        app_logger.exception(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 

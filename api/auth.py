@@ -32,12 +32,12 @@ async def authenticate_and_decode(credentials: HTTPAuthorizationCredentials = Se
 
     except HTTPException as e:
         # Re-raise HTTPException directly without modification
-        app_logger.error(f"HTTPException {e}")
+        app_logger.exception(e)
         raise e
 
     except Exception as e:
         # Raise all other exceptions as 500 Internal Server Error
-        app_logger.error(f"Exception {e}")
+        app_logger.exception(e)
         raise HTTPException(
             status_code=500,
             detail=f"Internal server error: {str(e)}"

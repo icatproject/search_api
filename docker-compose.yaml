@@ -10,7 +10,7 @@ services:
       target: test
     depends_on:
       seed_opensearch:
-        condition: service_completed_successfully
+        condition: service_completed_successfully # wait for the container to exit without any errors
     ports:
       - "8000:8000"
 
@@ -44,6 +44,7 @@ services:
     depends_on:
       opensearch:
         condition: service_healthy
+    # Put some test data in the OpenSearch instance
     command: >
       sh -c "
         sleep 10;

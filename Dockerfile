@@ -35,11 +35,11 @@ CMD ["fastapi", "run", "/app/api/main.py", "--host", "0.0.0.0", "--port", "8000"
 # Testing Stage
 FROM base AS test
 
-# Copy the requirements file for test dependencies
-COPY requirements-test.txt /app/
+# Copy the requirements file for the app & the test dependencies
+COPY requirements.txt requirements-test.txt /app/
 
 # Install both production and test dependencies
-RUN pip install --no-cache-dir -r requirements-test.txt
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-test.txt
 
 # Copy everything in
 COPY . /app

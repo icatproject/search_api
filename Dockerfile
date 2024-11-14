@@ -30,7 +30,6 @@ COPY requirements-test.txt /app/
 
 # Install both production and test dependencies
 RUN pip install --no-cache-dir -r requirements-test.txt
-RUN pip install pytest
 
 # Copy everything in
 COPY . /app

@@ -46,7 +46,7 @@ def test_search_with_valid_jwt():
     investigations = [{"id": "101"}, {"id": "103"}]
     token = create_jwt(investigations)
 
-    # Send a GET request to the /search endpoint with the JWT in the Authorization header
+    # Send a POST request to the /search endpoint with the JWT in the Authorization header
     response = client.post(
         "/search",
         json=search_body,

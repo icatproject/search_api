@@ -1,13 +1,10 @@
-# Once this has been run. it can be tested with:
-# curl -X GET 'http://localhost:9200/my-index/_search' -H 'Content-Type: application/json' -d' { "query": {"match_all": { }}}'
-
 services:
 
   # targets: test or production
   search-api:
     container_name: search-api
     build:
-      target: test
+      target: production
     depends_on:
       seed_opensearch:
         condition: service_completed_successfully # wait for the container to exit without any errors
@@ -15,7 +12,9 @@ services:
       - "8000:8000"
 
 
-  # create a basic opensearch cluster
+  # Create a basic opensearch cluster
+  # Once this has been run. it can be tested with:
+  # curl -X GET 'http://localhost:9200/my-index/_search' -H 'Content-Type: application/json' -d' { "query": {"match_all": { }}}'
   opensearch:
     image: opensearchproject/opensearch:2.5.0
     container_name: opensearch

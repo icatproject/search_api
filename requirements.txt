@@ -1,0 +1,9 @@
+# Production dependencies
+pydantic==2.9.2
+pydantic-settings==2.6.1
+fastapi[all]==0.115.5
+prometheus_client==0.21.0
+requests==2.32.3
+PyJWT==2.9.0
+cryptography==43.0.3
+opensearch-py==2.7.1

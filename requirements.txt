@@ -5,5 +5,5 @@ fastapi[all]==0.115.5
 prometheus_client==0.21.0
 requests==2.32.3
 PyJWT==2.9.0
-cryptography==43.0.3
+cryptography==44.0.1
 opensearch-py==2.7.1
